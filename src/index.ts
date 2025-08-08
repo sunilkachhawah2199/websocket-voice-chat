@@ -3,6 +3,8 @@ import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import twilio from "twilio";
 import dotenv from 'dotenv';
+import { twiml } from 'twilio';
+import VoiceResponse from 'twilio/lib/twiml/VoiceResponse';
 
 // Create Express app and HTTP server
 dotenv.config();
@@ -31,10 +33,22 @@ const wss = new WebSocketServer({ server });
 
 app.post("/call", async (req: Request, res: Response) => {
     const { number } = req.body;
+
+    const twiml = new VoiceResponse();
+    const start = twiml.start();
+    start.stream({
+        name: 'Example Audio Stream',
+        url: 'wss://ox-together-leech.ngrok-free.app/media',
+    });
+    twiml.say('The stream has started.');
+    twiml.pause({ length: 3600 });
+
+    console.log(twiml.toString());
+
     const call = await client.calls.create({
         from: TWILIO_NUMBER,
         to: number,
-        url: "http://demo.twilio.com/docs/voice.xml",
+        twiml: twiml.toString(),
     });
 
     return res.status(200).json({
