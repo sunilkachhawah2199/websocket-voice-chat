@@ -1,0 +1,27 @@
+<!-- index.html -->
+<input id="user_id" placeholder="Your User ID" />
+<input id="target_id" placeholder="Send to (User ID)" />
+<input id="msg" placeholder="Message" />
+<button onclick="connect()">Connect</button>
+<button onclick="send()">Send</button>
+<div id="log"></div>
+
+<script>
+    let socket;
+
+    function connect() {
+        const userId = document.getElementById("user_id").value;
+        socket = new WebSocket(`ws://localhost:3000/?user_id=${userId}`);
+        socket.onmessage = (e) => log(e.data);
+    }
+
+    function send() {
+        const to = document.getElementById("target_id").value;
+        const message = document.getElementById("msg").value;
+        socket.send(JSON.stringify({ to, message }));
+    }
+
+    function log(msg) {
+        document.getElementById("log").innerHTML += msg + "<br/>";
+    }
+</script>
